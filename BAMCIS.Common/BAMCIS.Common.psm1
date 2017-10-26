@@ -922,7 +922,7 @@ Function Write-CMTraceLog {
 			The thread ID of the process running the task. This defaults to the current managed thread ID.
 
 		.PARAMETER ErrorRecord
-			Optionally specify a PowerShell ErrorRecord object to include with the message.
+			Specify a PowerShell ErrorRecord object to include with the message. The resulting message content will be in JSON format.
 
 		.EXAMPLE
 			Write-CMTraceLog -Message "Test Warning Message" -FilePath "c:\logpath.log" -LogLevel 2 -Component "PowerShell"
@@ -946,7 +946,7 @@ Function Write-CMTraceLog {
 	[CmdletBinding()]
 	[OutputType()]
 	Param(
-		[Parameter(Position = 0 , ValueFromPipeline = $true, Mandatory = $true, ParameterSetName = "Message")]
+		[Parameter(Position = 0, ValueFromPipeline = $true, Mandatory = $true, ParameterSetName = "Message")]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$Message = [System.String]::Empty,
 
@@ -966,7 +966,7 @@ Function Write-CMTraceLog {
 		[System.Int32]$Thread = 0,
 
 		[Parameter(ParameterSetName = "Message")]
-		[Parameter(Position = 0, ValueFromPipeline = $true, Mandatory = $true, ParameterSetName = "Error")]
+		[Parameter(Position = 0, Mandatory = $true, ParameterSetName = "Error")]
 		[ValidateNotNull()]
 		[System.Management.Automation.ErrorRecord]$ErrorRecord = $null
 	)
@@ -983,22 +983,20 @@ Function Write-CMTraceLog {
 		$Time = ($Date.ToString("HH:mm:ss.fff") + "+" + ([System.TimeZone]::CurrentTimeZone.GetUtcOffset((Get-Date)).TotalMinutes * -1))
 		$Day = $Date.ToString("MM-dd-yyyy")
 
-		if ($ErrorRecord -ne $null) {
+		if ($ErrorRecord -ne $null) {			
+			[System.Collections.Hashtable]$Data = @{Exception = $ErrorRecord.Exception; Category = $ErrorRecord.CategoryInfo.Category.ToString(); StackTrace = $ErrorRecord.ScriptStackTrace; InvocationInfo = $ErrorRecord.InvocationInfo}
 			
 			if (-not [System.String]::IsNullOrEmpty($Message))
 			{
-				$Message += "`r`n"
+				$Data.Add("Message", $Message)
 			}
-
-			$Message += ("Exception: `r`n" + ($ErrorRecord.Exception | Select-Object -Property * | Format-List | Out-String) + "`r`n")
-			$Message += ("Category: " + ($ErrorRecord.CategoryInfo.Category.ToString()) + "`r`n")
-			$Message += ("Stack Trace: `r`n" + ($ErrorRecord.ScriptStackTrace | Format-List | Out-String) + "`r`n")
-			$Message += ("Invocation Info: `r`n" + ($ErrorRecord.InvocationInfo | Format-List | Out-String))
+			
+			$Message = ConvertTo-Json -InputObject $Data -Compress
 		}
 
 		$File = $FilePath.Substring($FilePath.LastIndexOf("\") + 1)
 		[System.String]$Log = @"
-<![LOG[$Message]LOG]!><time="$Time" date="$Day" component="$Component" context="" type="$LogLevel" thread="$Thread" file="$File">`r`n
+<![LOG[$Message]LOG]!><time="$Time" date="$Day" component="$Component" context="" type="$LogLevel" thread="$Thread" file="$File">
 "@
 		Add-Content -Path $FilePath -Value $Log -Force
 	}
