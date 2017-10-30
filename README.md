@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.0.2
+Updated manifest.
+
 ### 1.0.0.1
 Moved logging cmdlets to their own module.
 
