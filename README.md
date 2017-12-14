@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.1.0
+Added ConvertFrom-UnixTimestamp and ConvertTo-UnixTimestamp cmdlets.
+
 ### 1.0.0.2
 Updated manifest.
 

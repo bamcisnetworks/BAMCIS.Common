@@ -1230,6 +1230,126 @@ Function Convert-SecureStringToString {
     }
 }
 
+Function ConvertFrom-UnixTimestamp {
+	<#
+		.SYNOPSIS
+			Converts a Unix timestamp to a DateTime object.
+		
+		.DESCRIPTION
+			The cmdlet converts a unix timestamp to a DateTime object. The timestamp can be in milliseconds or seconds.
+		
+		.PARAMETER Timestamp
+			The unix timestamp. This can be in seconds or milliseconds, the cmdlet defaults to interpreting this as milliseconds.
+
+		.PARAMETER TimestampInSeconds
+			Specifies that the timestamp should be interpreted in seconds.
+
+		.EXAMPLE
+			ConvertFrom-UnixTimestamp 1509494400000
+
+			Converts the timestamp 1509494400000 to a DateTime which is Wednesday, November 1, 2017 12:00:00 AM.
+
+		.INPUTS
+			System.UInt64
+
+		.OUTPUTS
+			System.DateTime
+
+		.NOTES
+			AUTHOR: Michael Haken
+			LAST UPDATE: 12/14/2017
+	#>
+	[CmdletBinding()]
+	[OutputType([System.DateTime])]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[System.UInt64]$Timestamp,
+
+		[Parameter()]
+		[Switch]$TimestampInSeconds
+	)
+
+	Begin {
+	}
+
+	Process {
+
+		[System.DateTime]$Epoch = New-Object -TypeName System.DateTime(1970, 1, 1, 0, 0, 0, [System.DateTimeKind]::Utc)
+
+		if ($TimestampInSeconds)
+		{
+			Write-Output -InputObject ($Epoch.AddSeconds($Timestamp))
+		}
+		else
+		{
+			Write-Output -InputObject ($Epoch.AddMilliseconds($Timestamp))
+		}
+	}
+
+	End {
+	}
+}
+
+Function ConvertTo-UnixTimestamp {
+	<#
+		.SYNOPSIS
+			Converts a DateTime object to a Unix timestamp.
+		
+		.DESCRIPTION
+			The cmdlet converts a DateTime object to a unix timestamp in milliseconds or seconds past the epoch. It defaults to milliseconds.
+		
+		.PARAMETER Timestamp
+			The DateTime object to convert. It will be converted to UTC and then translated.
+
+		.PARAMETER OutputSeconds
+			Specifies that output should be in seconds past the epoch instead of milliseconds
+
+		.EXAMPLE
+			ConvertTo-UnixTimestamp ([System.DateTime]::UtcNow)
+
+			Converts the current time to a unix timestamp in milliseconds.
+
+		.INPUTS
+			System.DateTime
+
+		.OUTPUTS
+			System.UInt64
+
+		.NOTES
+			AUTHOR: Michael Haken
+			LAST UPDATE: 12/14/2017
+	#>
+	[CmdletBinding()]
+	[OutputType([System.DateTime])]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[System.DateTime]$Timestamp,
+
+		[Parameter()]
+		[Switch]$OutputSeconds
+	)
+
+	Begin {
+	}
+
+	Process {
+
+		[System.DateTime]$Epoch = New-Object -TypeName System.DateTime(1970, 1, 1, 0, 0, 0, [System.DateTimeKind]::Utc)
+
+		if ($OutputSeconds)
+		{
+			Write-Output -InputObject ([System.UInt64][System.Math]::Round(($Timestamp - $Epoch).TotalSeconds))
+		}
+		else
+		{
+			Write-Output -InputObject ([System.UInt64][System.Math]::Round(($Timestamp - $Epoch).TotalMilliseconds))
+		}
+	}
+
+	End {
+	}
+}
+
 #endregion
 
 
