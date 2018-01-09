@@ -197,6 +197,45 @@ Function Test-RegistryKeyProperty {
 	}
 }
 
+Function Test-IsLocalAdmin {
+	<#
+		.SYNOPSIS
+			Tests if the current user has local administrator privileges.
+
+		.DESCRIPTION
+			The Test-IsLocalAdmin cmdlet tests the user's current Windows Identity for inclusion in the BUILTIN\Administrators role.
+
+		.INPUTS
+			None
+
+		.OUTPUTS
+			System.Boolean
+
+		.EXAMPLE
+			Test-IsLocalAdmin
+
+			This command returns true if the current user is running the session with local admin credentials and false if not.
+
+		.NOTES
+			AUTHOR: Michael Haken	
+			LAST UPDATE: 2/27/2016
+
+		.FUNCTIONALITY
+			The intended use of this cmdlet is to test for administrative credentials before running other commands that require them.
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Boolean])]
+	Param()
+
+	Begin {}
+
+	Process {
+		Write-Output -InputObject ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+	}
+
+	End {}
+ }
+
 #endregion
 
 

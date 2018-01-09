@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.2.0
+Added the Test-IsLocalAdmin cmdlet.
+
 ### 1.0.1.0
 Added ConvertFrom-UnixTimestamp and ConvertTo-UnixTimestamp cmdlets.
 
