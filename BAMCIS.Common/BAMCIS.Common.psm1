@@ -1221,6 +1221,9 @@ Function Convert-SecureStringToString {
 		.PARAMETER SecureString
 			The secure string to convert to a standard string
 
+        .PARAMETER Encoding
+             Defines the encoding that is used to produce the output string. This defaults to Unicode.
+
 		.INPUTS
 			System.Security.SecureString
 		
@@ -1234,13 +1237,17 @@ Function Convert-SecureStringToString {
 
 		.NOTES
 			AUTHOR: Michael Haken
-			LAST UPDATE: 6/21/2017
+			LAST UPDATE: 1/25/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.String])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $true, Mandatory = $true)]
-        [System.Security.SecureString]$SecureString
+        [System.Security.SecureString]$SecureString,
+
+		[Parameter()]
+		[ValidateNotNull()]
+		[System.Text.Encoding]$Encoding = [System.Text.Encoding]::Unicode
     )
 
     Begin {}
@@ -1252,17 +1259,20 @@ Function Convert-SecureStringToString {
         try 
         {     
             $IntPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToGlobalAllocUnicode($SecureString)     
-            $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringUni($IntPtr)   
+			$PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringUni($IntPtr)  
+            [System.Byte[]]$Bytes = [System.Text.Encoding]::Unicode.GetBytes($PlainText)
+
+            $PlainText = $Encoding.GetString($Bytes)
+
+            Write-Output -InputObject $PlainText
         }   
         finally 
         {     
             if ($IntPtr -ne $null -and $IntPtr -ne [System.IntPtr]::Zero) 
 			{       
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeGlobalAllocUnicode($IntPtr)     
+				[System.Runtime.InteropServices.Marshal]::ZeroFreeGlobalAllocUnicode($IntPtr)     
             }   
         }
-
-		Write-Output -InputObject $PlainText
     }
 
     End {      

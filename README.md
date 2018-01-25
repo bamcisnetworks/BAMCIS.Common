@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.2.1
+Added an encoding parameter to Convert-SecureStringToString.
+
 ### 1.0.2.0
 Added the Test-IsLocalAdmin cmdlet.
 
