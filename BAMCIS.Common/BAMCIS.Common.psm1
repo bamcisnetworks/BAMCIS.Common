@@ -2074,6 +2074,66 @@ Function New-DynamicParameter {
 
 
 
+#region Dynamic Code
+
+Function Import-Assembly {
+	<#
+		.SYNOPSIS
+			Loads an assembly into the current session.
+
+		.DESCRIPTION
+			This cmdlet loads an assembly with the provided name if it is not already loaded.
+
+		.PARAMETER AssemblyName
+			The name of the assembly to load.
+
+		.EXAMPLE
+			Import-Assembly -AssemblyName System.Security
+
+			Imports System.Security to the current PowerShell session.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			None
+
+		.NOTES
+			AUTHOR: Michael Haken	
+			LAST UPDATE: 1/25/2018
+	#>
+	[CmdletBinding()]
+	[OutputType()]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$AssemblyName
+	)
+
+	Begin {
+
+	}
+
+	Process {
+        $Names = [System.AppDomain]::CurrentDomain.GetAssemblies() | Select-Object -Property @{"Name" = "Name"; "Expression" = { $_.FullName.Split(",")[0] }} | Select-Object -ExpandProperty Name
+
+        if ($Names -inotcontains $AssemblyName)
+        {
+            Write-Verbose -Message "Loading assembly $AssemblyName."
+            [System.Reflection.Assembly]::LoadWithPartialName($AssemblyName) | Out-Null
+        }
+        else
+        {
+            Write-Verbose -Message "Assembly $AssemblyName is already loaded."
+        }
+	}
+
+	End {
+	}
+}
+
+#endregion
+
 $script:UnboundExtensionMethod = @"
 using System;
 using System.Collections;

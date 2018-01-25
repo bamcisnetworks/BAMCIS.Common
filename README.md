@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.3.0
+Added Import-Assembly cmdlet.
+
 ### 1.0.2.1
 Added an encoding parameter to Convert-SecureStringToString.
 
