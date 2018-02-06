@@ -2,6 +2,9 @@
 
 ## Revision History
 
+### 1.0.4.0
+Moved dynamic parameter cmdlets to their own module.
+
 ### 1.0.3.0
 Added Import-Assembly cmdlet.
 
